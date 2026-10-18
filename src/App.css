@@ -324,7 +324,7 @@ button { font: inherit; }
 .table-row {
   display: grid;
   grid-template-columns:
-    minmax(280px, 2.55fr)
+    minmax(360px, 2.9fr)
     minmax(100px, .9fr)
     minmax(100px, .84fr)
     minmax(130px, 1.18fr)
@@ -349,9 +349,10 @@ button { font: inherit; }
 .data-row {
   flex: 1 1 0;
   width: 100%;
-  min-height: clamp(46.4px, 5.6vh, 58px);
+  min-height: 100px;
   padding: 0;
   border: 0;
+  border-bottom: 1px solid var(--line-soft);
   color: #f2f2ef;
   background: transparent;
   text-align: left;
@@ -365,13 +366,40 @@ button { font: inherit; }
 
 .data-row.is-selected { box-shadow: inset 2px 0 0 var(--yellow); }
 
+.data-row:last-child { border-bottom: 0; }
+
+.data-row:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: -2px;
+  background: #181a19;
+}
+
 .hackathon-name {
   align-self: stretch;
   display: flex;
   min-width: 0;
+  align-items: center;
+  gap: 14px;
+  padding-block: 14px;
+  padding-right: 14px;
+}
+
+.hackathon-banner {
+  display: block;
+  flex: 0 0 auto;
+  width: clamp(104px, 10vw, 160px);
+  height: auto;
+  aspect-ratio: 3 / 1;
+  object-fit: cover;
+  background: var(--teal);
+  border: 1px solid var(--line);
+}
+
+.hackathon-caption {
+  min-width: 0;
+  display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .hackathon-name strong,
@@ -384,7 +412,11 @@ button { font: inherit; }
   white-space: nowrap;
 }
 
-.hackathon-name strong { font-size: clamp(10px, .64vw, 12px); }
+.hackathon-name strong {
+  font-size: clamp(10px, .64vw, 12px);
+  white-space: normal;
+  line-height: 1.5;
+}
 
 .hackathon-name small,
 .closing-date small {
@@ -663,6 +695,38 @@ button { font: inherit; }
   .page-title h1 { font-size: 23px; }
   .instruction-bar { padding-left: 20px; }
   .table-region { padding: 28px 10px 36px; }
+  .hackathon-table { min-width: 0; }
+  .table-head { display: none; }
+  .data-row {
+    flex: 0 0 auto;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 16px;
+    padding: 16px;
+    font-size: 12px;
+  }
+  .data-row > span { padding-left: 0; }
+  .hackathon-name {
+    grid-column: 1 / -1;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    gap: 12px;
+  }
+  .hackathon-banner { width: 100%; }
+  .hackathon-name strong { font-size: 14px; }
+  .hackathon-name small { white-space: normal; line-height: 1.5; }
+  .data-row > [data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 6px;
+    color: #a3a5a7;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+  }
+  .stage-pill { color: #b6b9ba; font-size: 8px; }
+  .closing-date b { font-size: 12px; }
   .footer { height: auto; }
 
   .footer-inner {

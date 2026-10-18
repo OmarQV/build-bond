@@ -17,6 +17,7 @@ type IconName =
 
 type Hackathon = {
   name: string
+  banner: string
   location: string
   mode: 'online' | 'presencial'
   prize: string
@@ -39,13 +40,13 @@ const roles: Role[] = [
 ]
 
 const hackathons: Hackathon[] = [
-  { name: 'BB101 - DEMO/PITCH FINAL(MX)', location: '—', mode: 'online', prize: '$0.00', stage: 'ENVÍOS ABIERTOS', closes: '20 oct 2026', openNow: true, entries: 0 },
-  { name: 'BB101 - DEMO/PITCH FINAL(CO)', location: '—', mode: 'online', prize: '$0.00', stage: 'ENVÍOS ABIERTOS', closes: '20 oct 2026', openNow: true, entries: 6 },
-  { name: 'Bootcamp Tesh', location: 'MEXICO', mode: 'presencial', prize: '$30.00', stage: 'ENVÍOS ABIERTOS', closes: '18 oct 2026', openNow: true, entries: 7 },
-  { name: 'Ideathon Bolivia 2026', location: '—', mode: 'online', prize: '$600.00', stage: 'ENVÍOS ABIERTOS', closes: '18 oct 2026', openNow: true, entries: 10 },
-  { name: 'NEA TECH 2026', location: 'Corrientes, Argentina', mode: 'presencial', prize: '$1,000.00', stage: 'EN EVALUACIÓN', closes: '17 oct 2026', entries: 6 },
-  { name: 'Argentina Builder Challenge', location: '—', mode: 'online', prize: '$0.00', stage: 'EVALUACIÓN CERRADA', closes: '28 sep 2026', entries: 20 },
-  { name: 'GOYA HACK', location: 'CDMX, UNAM Facultad de Ingeniería', mode: 'presencial', prize: '$330.00', stage: 'EVALUACIÓN CERRADA', closes: '28 sep 2026', entries: 26 },
+  { name: 'BB101 - DEMO/PITCH FINAL(MX)', banner: 'bb101-mx', location: '—', mode: 'online', prize: '$0.00', stage: 'ENVÍOS ABIERTOS', closes: '20 oct 2026', openNow: true, entries: 0 },
+  { name: 'BB101 - DEMO/PITCH FINAL(CO)', banner: 'bb101-co', location: '—', mode: 'online', prize: '$0.00', stage: 'ENVÍOS ABIERTOS', closes: '20 oct 2026', openNow: true, entries: 6 },
+  { name: 'Bootcamp Tesh', banner: 'bootcamp-tesh', location: 'MEXICO', mode: 'presencial', prize: '$30.00', stage: 'ENVÍOS ABIERTOS', closes: '18 oct 2026', openNow: true, entries: 7 },
+  { name: 'Ideathon Bolivia 2026', banner: 'ideathon-bolivia', location: '—', mode: 'online', prize: '$600.00', stage: 'ENVÍOS ABIERTOS', closes: '18 oct 2026', openNow: true, entries: 10 },
+  { name: 'NEA TECH 2026', banner: 'nea-tech', location: 'Corrientes, Argentina', mode: 'presencial', prize: '$1,000.00', stage: 'EN EVALUACIÓN', closes: '17 oct 2026', entries: 6 },
+  { name: 'Argentina Builder Challenge', banner: 'argentina-builder', location: '—', mode: 'online', prize: '$0.00', stage: 'EVALUACIÓN CERRADA', closes: '28 sep 2026', entries: 20 },
+  { name: 'GOYA HACK', banner: 'goya-hack', location: 'CDMX, UNAM Facultad de Ingeniería', mode: 'presencial', prize: '$330.00', stage: 'EVALUACIÓN CERRADA', closes: '28 sep 2026', entries: 26 },
 ]
 
 function LineIcon({ name }: { name: IconName }) {
@@ -244,23 +245,27 @@ function App() {
                 <span role="columnheader">CIERRE DE ENVÍOS</span>
                 <span role="columnheader">PROYECTOS</span>
               </div>
-              {hackathons.map((hackathon) => (
+              {hackathons.map((hackathon, index) => (
                 <button
                   type="button"
                   className="table-row data-row"
                   role="row"
                   key={hackathon.name}
+                  aria-label={`Ver ${hackathon.name}`}
                   onClick={() => {
                     setSelectedHackathon(hackathon.name)
                     window.scrollTo({ top: 0 })
                   }}
                 >
-                  <span className="hackathon-name" role="cell"><strong>{hackathon.name}</strong><small>{hackathon.location}</small></span>
-                  <span role="cell">{hackathon.mode}</span>
-                  <span role="cell">{hackathon.prize}</span>
-                  <span role="cell"><em className="stage-pill">{hackathon.stage}</em></span>
-                  <span className="closing-date" role="cell"><b>{hackathon.closes}</b>{hackathon.openNow && <small>abierto ahora</small>}</span>
-                  <span role="cell">{hackathon.entries}</span>
+                  <span className="hackathon-name" role="cell">
+                    <img className="hackathon-banner" src={`${import.meta.env.BASE_URL}images/hackathons/${hackathon.banner}.webp`} alt="" width="960" height="320" loading={index < 2 ? 'eager' : 'lazy'} decoding="async" />
+                    <span className="hackathon-caption"><strong>{hackathon.name}</strong><small>{hackathon.location}</small></span>
+                  </span>
+                  <span role="cell" data-label="Modalidad">{hackathon.mode}</span>
+                  <span role="cell" data-label="Premios">{hackathon.prize}</span>
+                  <span role="cell" data-label="Etapa"><em className="stage-pill">{hackathon.stage}</em></span>
+                  <span className="closing-date" role="cell" data-label="Cierre de envíos"><b>{hackathon.closes}</b>{hackathon.openNow && <small>abierto ahora</small>}</span>
+                  <span role="cell" data-label="Proyectos">{hackathon.entries}</span>
                 </button>
               ))}
             </div>
