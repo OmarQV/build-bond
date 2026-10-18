@@ -4,32 +4,32 @@ import './HackerApplication.css'
 type Track = 'scratch' | 'existing'
 
 const trackOptions: { id: Track; title: string; description: string }[] = [
-  { id: 'scratch', title: 'Start from Scratch', description: 'Start from scratch and build a new project from the ground up.' },
-  { id: 'existing', title: 'Hack on Existing Project', description: 'Hack on an existing project that has been submitted to the hackathon.' },
+  { id: 'scratch', title: 'Empezar desde cero', description: 'Empieza desde cero y construye un proyecto nuevo desde la base.' },
+  { id: 'existing', title: 'Proyecto existente', description: 'Trabaja sobre un proyecto existente que ya fue enviado al hackathon.' },
 ]
 
 const trackRules = [
-  { ok: true, text: 'Each track has its own prizes and you will only be eligible for track specific prizes' },
-  { ok: false, text: 'You can only select one track and will not be allowed to switch tracks' },
-  { ok: true, text: 'You are allowed to add features to existing projects/codebases as long as the new changes are open-source' },
+  { ok: true, text: 'Cada track tiene sus propios premios y solo podrás optar a los premios de tu track' },
+  { ok: false, text: 'Solo puedes elegir un track y no podrás cambiarlo después' },
+  { ok: true, text: 'Puedes agregar funciones a proyectos/código existentes siempre que los cambios nuevos sean open-source' },
 ]
 
-const motivationOptions = ['Win prizes', 'Learn new skills', 'Meet builders', 'Find a co-founder', 'Get hired', 'Launch a startup']
+const motivationOptions = ['Ganar premios', 'Aprender nuevas habilidades', 'Conocer builders', 'Encontrar co-founder', 'Conseguir empleo', 'Lanzar una startup']
 const languageOptions = ['HTML/CSS', 'Python', 'Node.js', 'TypeScript', 'Rust', 'Solidity', 'Go', 'Java']
-const areaOptions = ['DeFi', 'Payments', 'Smart Contracts', 'AI Agents', 'Identity', 'Gaming', 'Infrastructure', 'Public Goods']
-const describeOptions = ['Frontend Developer', 'Backend Developer', 'Full-stack Developer', 'Designer', 'Product Manager', 'Student']
-const ethereumLevels = ["I'm new to Ethereum", 'I have built a few dApps', 'I ship to mainnet regularly']
-const teamOptions = ['Hacking Solo', 'With a team', 'Looking for a team']
+const areaOptions = ['DeFi', 'Pagos', 'Smart Contracts', 'Agentes de IA', 'Identidad', 'Gaming', 'Infraestructura', 'Bienes públicos']
+const describeOptions = ['Desarrollador Frontend', 'Desarrollador Backend', 'Desarrollador Full-stack', 'Diseñador', 'Product Manager', 'Estudiante']
+const ethereumLevels = ['Soy nuevo en Ethereum', 'He construido algunas dApps', 'Despliego en mainnet seguido']
+const teamOptions = ['Hackeo solo', 'Con un equipo', 'Buscando equipo']
 
 const demoProfile = {
   track: 'scratch' as Track,
-  web2: 'Full-stack developer from Bolivia. I built a ticketing platform for university events (React + Node.js, 4k users) and a small inventory system for local shops with Python and PostgreSQL.',
-  building: 'A cross-border payments dApp on Stellar: freelancers in LATAM get paid in USDC and cash out to local currency. I want to learn Soroban smart contracts and wallet UX.',
-  motivations: ['Learn new skills', 'Meet builders'],
+  web2: 'Desarrollador full-stack de Bolivia. Construí una plataforma de tickets para eventos universitarios (React + Node.js, 4k usuarios) y un sistema de inventario para tiendas locales con Python y PostgreSQL.',
+  building: 'Una dApp de pagos transfronterizos en Stellar: freelancers de LATAM cobran en USDC y retiran en moneda local. Quiero aprender smart contracts con Soroban y UX de wallets.',
+  motivations: ['Aprender nuevas habilidades', 'Conocer builders'],
   years: '2',
   ethLevel: ethereumLevels[0],
   languages: ['HTML/CSS', 'Python', 'Node.js', 'TypeScript'],
-  areas: ['Payments', 'Smart Contracts'],
+  areas: ['Pagos', 'Smart Contracts'],
   describe: describeOptions[2],
   team: teamOptions[0],
   resume: 'Jhamil_CV_2026.pdf',
@@ -76,9 +76,9 @@ export function HackerApplication({ eventName, onBack }: { eventName: string; on
   const set = <K extends keyof typeof demoProfile>(key: K, value: (typeof demoProfile)[K]) => setForm((prev) => ({ ...prev, [key]: value }))
 
   const missing = !form.track
-    ? 'Please select a hackathon track to continue your application'
+    ? 'Selecciona un track del hackathon para continuar con tu solicitud'
     : !form.conduct || !form.privacy
-      ? 'Please accept the code of conduct and privacy policy'
+      ? 'Acepta el código de conducta y la política de privacidad'
       : null
 
   const handleSubmit = (event: FormEvent) => {
@@ -93,20 +93,20 @@ export function HackerApplication({ eventName, onBack }: { eventName: string; on
     return (
       <section className="application-region application-done">
         <span className="done-badge" aria-hidden="true">✓</span>
-        <h2>Application submitted</h2>
+        <h2>Solicitud enviada</h2>
         <p className="application-lead">
-          Thanks, Jhamil! Your hacker application for <b>{eventName}</b> is under review.
-          Once accepted you will need to stake to confirm your spot.
+          ¡Gracias, Jhamil! Tu solicitud de hacker para <b>{eventName}</b> está en revisión.
+          Cuando sea aceptada tendrás que hacer stake para confirmar tu lugar.
         </p>
         <dl className="done-summary">
           <div><dt>TRACK</dt><dd>{trackOptions.find((t) => t.id === form.track)?.title}</dd></div>
-          <div><dt>TEAM</dt><dd>{form.team}</dd></div>
-          <div><dt>LANGUAGES</dt><dd>{form.languages.join(', ') || '—'}</dd></div>
-          <div><dt>STATUS</dt><dd className="status-pending">PENDING REVIEW</dd></div>
+          <div><dt>EQUIPO</dt><dd>{form.team}</dd></div>
+          <div><dt>LENGUAJES</dt><dd>{form.languages.join(', ') || '—'}</dd></div>
+          <div><dt>ESTADO</dt><dd className="status-pending">EN REVISIÓN</dd></div>
         </dl>
         <div className="application-actions">
-          <button type="button" className="btn-ghost" onClick={() => setSubmitted(false)}>Edit application</button>
-          <button type="button" className="btn-primary" onClick={onBack}>Back to roles</button>
+          <button type="button" className="btn-ghost" onClick={() => setSubmitted(false)}>Editar solicitud</button>
+          <button type="button" className="btn-primary" onClick={onBack}>Volver a roles</button>
         </div>
       </section>
     )
@@ -114,15 +114,15 @@ export function HackerApplication({ eventName, onBack }: { eventName: string; on
 
   return (
     <form className="application-region" onSubmit={handleSubmit}>
-      <h2>Hacker Application</h2>
+      <h2>Solicitud de Hacker</h2>
       <p className="application-lead">
-        After your application has been accepted, you will need to stake to attend the event.
-        Any teammates you plan to work with will also need to apply individually.
+        Cuando tu solicitud sea aceptada, tendrás que hacer stake para asistir al evento.
+        Los compañeros con los que planeas trabajar también deben postular individualmente.
       </p>
-      <div className="demo-note">DEMO DATA PRE-FILLED — EDIT ANY FIELD OR SUBMIT DIRECTLY.</div>
+      <div className="demo-note">DATOS DE DEMO PRECARGADOS — EDITA CUALQUIER CAMPO O ENVÍA DIRECTAMENTE.</div>
 
-      <Field label="Hackathon Track *" hint="Please select the track you'd like to participate in. You will not be able to switch tracks after you've selected one.">
-        <div className="track-grid" role="radiogroup" aria-label="Hackathon track">
+      <Field label="Track del hackathon *" hint="Selecciona el track en el que quieres participar. No podrás cambiar de track después de elegirlo.">
+        <div className="track-grid" role="radiogroup" aria-label="Track del hackathon">
           {trackOptions.map((track) => (
             <button
               type="button"
@@ -144,53 +144,53 @@ export function HackerApplication({ eventName, onBack }: { eventName: string; on
         </ul>
       </Field>
 
-      <Field label="Tell us about your background in Web2" hint="What have you worked on outside of crypto that you're particularly proud of?">
+      <Field label="Cuéntanos sobre tu experiencia en Web2" hint="¿En qué has trabajado fuera de cripto de lo que te sientas orgulloso? ¿Qué cosas has construido?">
         <textarea rows={4} value={form.web2} onChange={(e) => set('web2', e.target.value)} />
       </Field>
 
-      <Field label="What will you be developing/building at the event?" hint="What about Web3 is interesting to you and what would you like to build at the hackathon?">
+      <Field label="¿Qué vas a desarrollar/construir en el evento?" hint="¿Qué te interesa de Web3 y qué te gustaría construir en el hackathon?">
         <textarea rows={4} value={form.building} onChange={(e) => set('building', e.target.value)} />
       </Field>
 
-      <Field label="Which of these are motivating you to apply to the event?">
+      <Field label="¿Qué te motiva a postular a este evento?">
         <ChipPicker options={motivationOptions} value={form.motivations} onChange={(v) => set('motivations', v)} />
       </Field>
 
       <div className="field-pair">
-        <Field label="Years of Coding Experience">
+        <Field label="Años de experiencia programando">
           <select value={form.years} onChange={(e) => set('years', e.target.value)}>
             {['<1', '1', '2', '3', '4', '5+'].map((y) => <option key={y}>{y}</option>)}
           </select>
         </Field>
-        <Field label="Ethereum Experience Level">
+        <Field label="Nivel de experiencia en Ethereum">
           <select value={form.ethLevel} onChange={(e) => set('ethLevel', e.target.value)}>
             {ethereumLevels.map((l) => <option key={l}>{l}</option>)}
           </select>
         </Field>
       </div>
 
-      <Field label="Which programming languages do you have experience with?" hint="Select all that are applicable.">
+      <Field label="¿Con qué lenguajes de programación tienes experiencia?" hint="Selecciona todos los que apliquen.">
         <ChipPicker options={languageOptions} value={form.languages} onChange={(v) => set('languages', v)} />
       </Field>
 
-      <Field label="Which of these particular areas are you interested in going into this event?">
+      <Field label="¿Qué áreas te interesan para este evento?">
         <ChipPicker options={areaOptions} value={form.areas} onChange={(v) => set('areas', v)} />
       </Field>
 
       <div className="field-pair">
-        <Field label="How would you describe yourself?">
+        <Field label="¿Cómo te describirías?">
           <select value={form.describe} onChange={(e) => set('describe', e.target.value)}>
             {describeOptions.map((d) => <option key={d}>{d}</option>)}
           </select>
         </Field>
-        <Field label="Do you plan on hacking solo or with a team?">
+        <Field label="¿Planeas hackear solo o en equipo?">
           <select value={form.team} onChange={(e) => set('team', e.target.value)}>
             {teamOptions.map((t) => <option key={t}>{t}</option>)}
           </select>
         </Field>
       </div>
 
-      <Field label="Resume / CV">
+      <Field label="Currículum / CV">
         <label className="upload-box">
           <input
             type="file"
@@ -200,10 +200,10 @@ export function HackerApplication({ eventName, onBack }: { eventName: string; on
           {form.resume ? (
             <span className="upload-file">
               <span className="file-tag">PDF</span>
-              <span><b>{form.resume}</b><small>Uploaded · click to replace</small></span>
+              <span><b>{form.resume}</b><small>Subido · haz clic para reemplazar</small></span>
             </span>
           ) : (
-            <span className="upload-empty"><b>Click to upload</b> or drag and drop<small>Accepted file types: .pdf, .doc, .docx, images</small></span>
+            <span className="upload-empty"><b>Haz clic para subir</b> o arrastra y suelta<small>Tipos aceptados: .pdf, .doc, .docx, imágenes</small></span>
           )}
         </label>
       </Field>
@@ -211,29 +211,29 @@ export function HackerApplication({ eventName, onBack }: { eventName: string; on
       <div className="check-list">
         <label className="check-row">
           <input type="checkbox" checked={form.under18} onChange={(e) => set('under18', e.target.checked)} />
-          <span><b>Yes, I will be under 18 years old on the event date</b><small>Don't worry, we just need a waiver signed by a parent/guardian.</small></span>
+          <span><b>Sí, tendré menos de 18 años en la fecha del evento</b><small>No te preocupes, solo necesitamos una autorización firmada por tu padre/madre/tutor.</small></span>
         </label>
         <label className="check-row">
           <input type="checkbox" checked={form.firstEvent} onChange={(e) => set('firstEvent', e.target.checked)} />
-          <span><b>Yes, this is the first Stellar Apex hackathon I'm attending</b></span>
+          <span><b>Sí, este es mi primer hackathon de Stellar Apex</b></span>
         </label>
         <label className="check-row">
           <input type="checkbox" checked={form.conduct} onChange={(e) => set('conduct', e.target.checked)} />
-          <span><b>I agree to the code of conduct</b><small>I confirm that I have read and agreed to the <a href="#documentation">"Code of conduct" &amp; "Rules and conditions"</a> of the competition.</small></span>
+          <span><b>Acepto el código de conducta</b><small>Confirmo que leí y acepto el <a href="#documentation">"Código de conducta" y las "Reglas y condiciones"</a> de la competencia.</small></span>
         </label>
         <label className="check-row">
           <input type="checkbox" checked={form.privacy} onChange={(e) => set('privacy', e.target.checked)} />
-          <span><b>I agree to the privacy policy</b><small>I confirm that I have read and agreed to the <a href="#privacy">"Privacy Policy"</a>.</small></span>
+          <span><b>Acepto la política de privacidad</b><small>Confirmo que leí y acepto la <a href="#privacy">"Política de privacidad"</a>.</small></span>
         </label>
       </div>
 
       {missing
         ? <div className="form-alert is-warning">⚠ {missing}</div>
-        : <div className="form-alert is-ready">✓ Everything looks good — ready to submit</div>}
+        : <div className="form-alert is-ready">✓ Todo listo — puedes enviar tu solicitud</div>}
 
       <div className="application-actions">
-        <button type="button" className="btn-ghost" onClick={onBack}>Previous</button>
-        <button type="submit" className="btn-primary" disabled={Boolean(missing)}>Submit</button>
+        <button type="button" className="btn-ghost" onClick={onBack}>Anterior</button>
+        <button type="submit" className="btn-primary" disabled={Boolean(missing)}>Enviar</button>
       </div>
     </form>
   )
