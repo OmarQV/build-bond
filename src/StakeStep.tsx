@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import {
+  BUILD_BOND_AMOUNT_XLM,
+  BUILD_BOND_CONTRACT_ID,
   connectFreighter,
-  ESCROW_ADDRESS,
   EXPLORER_TX_URL,
   fundWithFriendbot,
+  joinBuildBond,
   loadBalances,
   shortAddress,
-  stakeWithFreighter,
   type Balances,
   type StakeAsset,
 } from './lib/stellar'
@@ -21,7 +22,7 @@ const wallets = [
   { id: 'LOBSTR', note: 'Próximamente', available: false },
 ]
 
-const stakeAmounts: Record<StakeAsset, string> = { XLM: '50', USDC: '10' }
+const stakeAmounts: Record<StakeAsset, string> = { XLM: BUILD_BOND_AMOUNT_XLM, USDC: '10' }
 
 // Reserva mínima que la cuenta debe conservar además del stake (base + comisiones)
 const XLM_RESERVE = 1.5
@@ -115,7 +116,7 @@ export function StakeStep({ eventName, onFinish }: { eventName: string; onFinish
     }
 
     try {
-      const hash = await stakeWithFreighter({ address, asset, amount, onSigned: () => setPhase('sending') })
+      const { hash } = await joinBuildBond({ address, onSigned: () => setPhase('sending') })
       finish(hash)
     } catch (err) {
       setError((err as Error).message)
@@ -154,7 +155,7 @@ export function StakeStep({ eventName, onFinish }: { eventName: string; onFinish
           <dl className="stake-info">
             <div><dt>RED</dt><dd>Stellar Testnet</dd></div>
             <div><dt>MONTO</dt><dd className="stake-amount">{amount} {asset}</dd></div>
-            <div><dt>DESTINO</dt><dd className="mono-ellipsis" title={ESCROW_ADDRESS}>{ESCROW_ADDRESS ? `${shortAddress(ESCROW_ADDRESS)} · Escrow` : 'BUILD BOND · contrato pendiente'}</dd></div>
+            <div><dt>CONTRATO</dt><dd className="mono-ellipsis" title={BUILD_BOND_CONTRACT_ID}>{shortAddress(BUILD_BOND_CONTRACT_ID)} · Soroban</dd></div>
             <div><dt>REEMBOLSO</dt><dd>Al hacer check-in y enviar tu proyecto</dd></div>
           </dl>
 
@@ -219,7 +220,7 @@ export function StakeStep({ eventName, onFinish }: { eventName: string; onFinish
             <>
               <div className="app-field">
                 <span className="app-label">Activo para el stake</span>
-                {balances.USDC === null && <span className="app-hint">Para usar USDC agrega primero la trustline de USDC de Testnet en Freighter.</span>}
+                <span className="app-hint">Este evento de demo solo acepta XLM en el contrato BuildBond.</span>
                 <div className="chip-picker">
                   {(Object.keys(stakeAmounts) as StakeAsset[]).map((a) => (
                     <button
@@ -227,7 +228,7 @@ export function StakeStep({ eventName, onFinish }: { eventName: string; onFinish
                       key={a}
                       className={asset === a ? 'chip is-active' : 'chip'}
                       aria-pressed={asset === a}
-                      disabled={phase !== 'ready' || (a === 'USDC' && balances.USDC === null)}
+                      disabled={phase !== 'ready' || a !== 'XLM'}
                       onClick={() => setAsset(a)}
                     >
                       {stakeAmounts[a]} {a}
@@ -238,7 +239,7 @@ export function StakeStep({ eventName, onFinish }: { eventName: string; onFinish
 
               {phase === 'ready'
                 ? enoughFunds
-                  ? <div className="form-alert is-ready">✓ Saldo suficiente — {ESCROW_ADDRESS ? `se enviarán ${amount} ${asset} al escrow del evento` : `firmarás el registro de ${amount} ${asset} en tu cuenta`}</div>
+                  ? <div className="form-alert is-ready">✓ Saldo suficiente — se bloquearán {amount} {asset} en el contrato BuildBond</div>
                   : <div className="form-alert is-warning">⚠ Saldo insuficiente: necesitas al menos {needed} {asset}</div>
                 : <div className="form-alert is-warning stake-progress">
                     <span className="spinner" aria-hidden="true" />
