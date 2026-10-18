@@ -1,5 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import './HackerApplication.css'
+import { StakeStep } from './StakeStep'
 
 type Track = 'scratch' | 'existing'
 
@@ -70,7 +71,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 
 export function HackerApplication({ eventName, onBack }: { eventName: string; onBack: () => void }) {
   const [form, setForm] = useState(demoProfile)
-  const [submitted, setSubmitted] = useState(false)
+  const [stage, setStage] = useState<'form' | 'submitted' | 'stake'>('form')
   const set = <K extends keyof typeof demoProfile>(key: K, value: (typeof demoProfile)[K]) => setForm((prev) => ({ ...prev, [key]: value }))
 
   const missing = !form.track
@@ -82,29 +83,33 @@ export function HackerApplication({ eventName, onBack }: { eventName: string; on
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     if (!missing) {
-      setSubmitted(true)
+      setStage('submitted')
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
-  if (submitted) {
+  if (stage === 'stake') {
+    return <StakeStep eventName={eventName} onFinish={onBack} />
+  }
+
+  if (stage === 'submitted') {
     return (
       <section className="application-region application-done">
         <span className="done-badge" aria-hidden="true">✓</span>
-        <h2>Solicitud enviada</h2>
+        <h2>¡Solicitud aceptada!</h2>
         <p className="application-lead">
-          ¡Gracias, Jhamil! Tu solicitud de hacker para <b>{eventName}</b> está en revisión.
-          Cuando sea aceptada tendrás que hacer stake para confirmar tu lugar.
+          ¡Gracias, Jhamil! Tu solicitud de hacker para <b>{eventName}</b> fue aceptada.
+          Haz stake en Stellar para confirmar tu lugar en el evento.
         </p>
         <dl className="done-summary">
           <div><dt>TRACK</dt><dd>{trackOptions.find((t) => t.id === form.track)?.title}</dd></div>
           <div><dt>EQUIPO</dt><dd>{form.team}</dd></div>
           <div><dt>LENGUAJES</dt><dd>{form.languages.join(', ') || '—'}</dd></div>
-          <div><dt>ESTADO</dt><dd className="status-pending">EN REVISIÓN</dd></div>
+          <div><dt>ESTADO</dt><dd className="status-pending">ACEPTADA · PENDIENTE DE STAKE</dd></div>
         </dl>
         <div className="application-actions">
-          <button type="button" className="btn-ghost" onClick={() => setSubmitted(false)}>Editar solicitud</button>
-          <button type="button" className="btn-primary" onClick={onBack}>Volver a roles</button>
+          <button type="button" className="btn-ghost" onClick={() => setStage('form')}>Editar solicitud</button>
+          <button type="button" className="btn-primary" onClick={() => { setStage('stake'); window.scrollTo({ top: 0 }) }}>Continuar al stake →</button>
         </div>
       </section>
     )
