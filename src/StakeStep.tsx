@@ -29,7 +29,7 @@ const XLM_RESERVE = 1.5
 const stakeRules = [
   { ok: true, text: 'Tu stake se devuelve completo al hacer check-in y enviar tu proyecto' },
   { ok: true, text: 'Si no puedes asistir, cancela hasta 48 h antes y recupera tu stake' },
-  { ok: false, text: 'Si no te presentas sin avisar, el stake se suma al pool de premios' },
+  { ok: false, text: 'Si no te presentas, tu stake queda congelado y lo recuperas al completar otro evento' },
 ]
 
 const demoAddress = 'GBX7QK2M4WZT5NLE3RYH6PVA9DCJ8SUF2KXQ7B4MZT3LWYQ4K4QZ'
