@@ -3,12 +3,15 @@ import {
   BUILD_BOND_AMOUNT_XLM,
   BUILD_BOND_CONTRACT_ID,
   connectFreighter,
+  ContractError,
   EXPLORER_TX_URL,
+  findExistingBond,
   fundWithFriendbot,
   joinBuildBond,
   loadBalances,
   shortAddress,
   type Balances,
+  type ExistingBond,
   type StakeAsset,
 } from './lib/stellar'
 import './StakeStep.css'
@@ -50,9 +53,10 @@ export function StakeStep({ eventName, onFinish }: { eventName: string; onFinish
   const [funding, setFunding] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [txHash, setTxHash] = useState('')
+  const [existing, setExisting] = useState<ExistingBond | null>(null)
 
   const stepIndex = phase === 'done' ? 3 : phase === 'connect' || phase === 'connecting' ? 0 : 1
-  const amount = stakeAmounts[asset]
+  const amount = existing ? existing.amountXlm : stakeAmounts[asset]
   const balance = balances ? (asset === 'XLM' ? balances.XLM : balances.USDC) : null
   const needed = Number(amount) + (asset === 'XLM' ? XLM_RESERVE : 0)
   const enoughFunds = balance !== null && Number(balance) >= needed
@@ -71,11 +75,24 @@ export function StakeStep({ eventName, onFinish }: { eventName: string; onFinish
       setAddress(account)
       setDemo(false)
       await refreshBalances(account)
+      if (await showExistingBond(account)) return
       setPhase('ready')
     } catch (err) {
       setError((err as Error).message)
       setPhase('connect')
     }
+  }
+
+  // Si la wallet ya depositó en este evento, el contrato rechaza otro join (error 303):
+  // mostramos su bond en lugar de pedirle que firme de nuevo.
+  const showExistingBond = async (account: string) => {
+    const bond = await findExistingBond(account).catch(() => null)
+    if (!bond) return false
+    setExisting(bond)
+    setAsset('XLM')
+    setTxHash('')
+    setPhase('done')
+    return true
   }
 
   const startDemo = () => {
@@ -119,6 +136,7 @@ export function StakeStep({ eventName, onFinish }: { eventName: string; onFinish
       const { hash } = await joinBuildBond({ address, onSigned: () => setPhase('sending') })
       finish(hash)
     } catch (err) {
+      if (err instanceof ContractError && err.code === 303 && (await showExistingBond(address))) return
       setError((err as Error).message)
       setPhase('ready')
     }
@@ -130,14 +148,17 @@ export function StakeStep({ eventName, onFinish }: { eventName: string; onFinish
     setBalances(null)
     setDemo(false)
     setError(null)
+    setExisting(null)
   }
 
   return (
     <section className="application-region stake-region">
-      <h2>{phase === 'done' ? '¡Lugar confirmado!' : 'Stake para asistir'}</h2>
+      <h2>{phase === 'done' ? (existing ? 'Ya tienes tu Build Bond' : '¡Lugar confirmado!') : 'Stake para asistir'}</h2>
       <p className="application-lead">
         {phase === 'done'
-          ? <>Tu stake quedó registrado en Stellar Testnet. Nos vemos en <b>{eventName}</b>.</>
+          ? existing
+            ? <>Esta wallet ya depositó en el evento de demo, así que no necesitas firmar de nuevo. Nos vemos en <b>{eventName}</b>.</>
+            : <>Tu stake quedó registrado en Stellar Testnet. Nos vemos en <b>{eventName}</b>.</>
           : <>Tu solicitud fue aceptada. Para confirmar tu lugar en <b>{eventName}</b> deposita un stake reembolsable en la red Stellar.</>}
       </p>
 
@@ -275,14 +296,16 @@ export function StakeStep({ eventName, onFinish }: { eventName: string; onFinish
             <div><dt>STAKE</dt><dd>{amount} {asset}</dd></div>
             <div><dt>WALLET</dt><dd>Freighter · {shortAddress(address)}</dd></div>
             <div>
-              <dt>TRANSACCIÓN</dt>
+              <dt>{existing ? 'BOND' : 'TRANSACCIÓN'}</dt>
               <dd className="mono-ellipsis" title={txHash}>
-                {demo
+                {existing
+                  ? `#${existing.bondId} · contrato ${shortAddress(BUILD_BOND_CONTRACT_ID)}`
+                  : demo
                   ? `${txHash.slice(0, 10)}…${txHash.slice(-6)} (demo)`
                   : <a className="tx-link" href={`${EXPLORER_TX_URL}${txHash}`} target="_blank" rel="noreferrer">{txHash.slice(0, 10)}…{txHash.slice(-6)} ↗</a>}
               </dd>
             </div>
-            <div><dt>ESTADO</dt><dd className="status-ok">CONFIRMADO · REEMBOLSABLE</dd></div>
+            <div><dt>ESTADO</dt><dd className="status-ok">{existing ? existing.state : 'CONFIRMADO · REEMBOLSABLE'}</dd></div>
           </dl>
 
           <div className="application-actions">
