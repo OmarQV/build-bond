@@ -12,6 +12,8 @@
   --cyan: #00b8c4;
   --purple: #6847c2;
   --side-rail: 68px;
+  --layout-gutter: 16px;
+  --layout-max: 1920px;
 }
 
 * { box-sizing: border-box; }
@@ -22,8 +24,7 @@ a { -webkit-tap-highlight-color: transparent; }
 button { font: inherit; }
 
 .site-shell {
-  min-height: 100vh;
-  min-height: 794px;
+  min-height: max(100svh, 794px);
   display: flex;
   flex-direction: column;
   background: linear-gradient(var(--line-soft), var(--line-soft)) 0 31px / 100% 1px no-repeat, var(--page);
@@ -39,7 +40,7 @@ button { font: inherit; }
 .topbar-inner,
 .footer-inner,
 .workspace {
-  width: min(1056px, calc(100% - 136px));
+  width: min(var(--layout-max), calc(100% - var(--layout-gutter) - var(--layout-gutter)));
   margin: 0 auto;
 }
 
@@ -169,21 +170,10 @@ button { font: inherit; }
 .profile-menu button:hover { background: var(--teal); }
 
 .workspace {
-  position: relative;
   flex: 1 0 666px;
   display: grid;
   grid-template-columns: var(--side-rail) 1fr;
   border-inline: 1px solid var(--line-soft);
-}
-
-.workspace::after {
-  content: '';
-  position: absolute;
-  inset-block: 0;
-  right: var(--side-rail);
-  width: 1px;
-  background: var(--line);
-  pointer-events: none;
 }
 
 .sidebar {
@@ -246,6 +236,8 @@ button { font: inherit; }
 
 .content-panel {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
   border-left: 1px solid var(--line);
 }
 
@@ -254,7 +246,7 @@ button { font: inherit; }
   display: flex;
   align-items: center;
   gap: 18px;
-  padding: 0 calc(18px + var(--side-rail)) 0 18px;
+  padding: 0 22px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -306,7 +298,7 @@ button { font: inherit; }
 
 .instruction-bar {
   height: 45px;
-  padding: 13px calc(80px + var(--side-rail)) 0 80px;
+  padding: 13px 80px 0;
   border-bottom: 1px solid var(--line-soft);
   color: #73777b;
   font: 400 7.5px/1.2 'Courier New', monospace;
@@ -314,11 +306,16 @@ button { font: inherit; }
 }
 
 .table-region {
-  padding: 34px calc(18px + var(--side-rail)) 0 18px;
+  width: 100%;
+  padding: 34px 22px 24px;
 }
 
 .hackathon-table {
-  min-width: 838px;
+  width: 100%;
+  min-width: 900px;
+  min-height: clamp(350px, 60vh, 620px);
+  display: flex;
+  flex-direction: column;
   border: 1px solid #705e00;
   background: #0e0f0f;
   font-family: 'Courier New', Consolas, monospace;
@@ -326,15 +323,22 @@ button { font: inherit; }
 
 .table-row {
   display: grid;
-  grid-template-columns: 303px 110px 100px 139px 148px 1fr;
+  grid-template-columns:
+    minmax(280px, 2.55fr)
+    minmax(100px, .9fr)
+    minmax(100px, .84fr)
+    minmax(130px, 1.18fr)
+    minmax(160px, 1.24fr)
+    minmax(82px, .69fr);
   align-items: center;
 }
 
 .table-head {
-  height: 21px;
+  flex: 0 0 clamp(21px, 2.8vh, 28px);
+  height: clamp(21px, 2.8vh, 28px);
   color: #fff;
   background: var(--mustard);
-  font-size: 7.5px;
+  font-size: clamp(7.5px, .52vw, 10px);
   font-weight: 700;
   line-height: 1;
 }
@@ -343,15 +347,16 @@ button { font: inherit; }
 .data-row > span { padding-left: 12px; }
 
 .data-row {
+  flex: 1 1 0;
   width: 100%;
-  min-height: 46.4px;
+  min-height: clamp(46.4px, 5.6vh, 58px);
   padding: 0;
   border: 0;
   color: #f2f2ef;
   background: transparent;
   text-align: left;
   cursor: pointer;
-  font: 700 10px/1.08 'Courier New', Consolas, monospace;
+  font: 700 clamp(10px, .64vw, 12px)/1.08 'Courier New', Consolas, monospace;
   transition: background 100ms ease;
 }
 
@@ -379,18 +384,18 @@ button { font: inherit; }
   white-space: nowrap;
 }
 
-.hackathon-name strong { font-size: 10px; }
+.hackathon-name strong { font-size: clamp(10px, .64vw, 12px); }
 
 .hackathon-name small,
 .closing-date small {
   color: #7b7d7e;
-  font-size: 9px;
+  font-size: clamp(9px, .56vw, 10.5px);
   font-weight: 400;
 }
 
 .closing-date b {
   color: inherit;
-  font-size: 9.5px;
+  font-size: clamp(9.5px, .6vw, 11px);
   font-weight: 700;
 }
 
@@ -471,11 +476,10 @@ button { font: inherit; }
 }
 
 @media (max-width: 980px) {
-  :root { --side-rail: 58px; }
-
-  .topbar-inner,
-  .footer-inner,
-  .workspace { width: calc(100% - 32px); }
+  :root {
+    --side-rail: 58px;
+    --layout-gutter: 12px;
+  }
 
   .main-nav button {
     min-width: auto;
@@ -488,7 +492,10 @@ button { font: inherit; }
 }
 
 @media (max-width: 680px) {
-  :root { --side-rail: 0px; }
+  :root {
+    --side-rail: 0px;
+    --layout-gutter: 6px;
+  }
 
   .site-shell {
     min-height: 100svh;
@@ -519,12 +526,9 @@ button { font: inherit; }
   }
 
   .workspace {
-    width: calc(100% - 16px);
     grid-template-columns: 1fr;
     border-inline: 1px solid var(--line-soft);
   }
-
-  .workspace::after { display: none; }
 
   .sidebar {
     padding: 8px;
