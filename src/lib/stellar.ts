@@ -1,21 +1,38 @@
 import { getNetwork, isConnected, requestAccess, signTransaction } from '@stellar/freighter-api'
 
 export const HORIZON_URL = 'https://horizon-testnet.stellar.org'
+export const SOROBAN_RPC_URL = 'https://soroban-testnet.stellar.org'
 export const FRIENDBOT_URL = 'https://friendbot.stellar.org'
 export const EXPLORER_TX_URL = 'https://stellar.expert/explorer/testnet/tx/'
 
 // USDC de prueba emitido por Circle en Testnet
 export const USDC_TESTNET_ISSUER = 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5'
 
-// Cuenta que recibe el stake mientras el contrato BUILD BOND no esté desplegado.
-// Si no se define, la transacción solo registra el stake en la cuenta del usuario (no mueve fondos).
-export const ESCROW_ADDRESS = import.meta.env.VITE_STAKE_ESCROW as string | undefined
+// Contrato BuildBond desplegado en Testnet (ver Contracts/build-bond/DEPLOYMENTS.md).
+// El evento 1 es el evento público de demo: open_admission = true, así que
+// cualquier wallet puede depositar sin que un organizador la autorice antes.
+export const BUILD_BOND_CONTRACT_ID =
+  (import.meta.env.VITE_BUILD_BOND_CONTRACT_ID as string | undefined) ||
+  'CCLJNTWWDKPVT4LFXH7QLZSLV3FKOTRC5DZX3MVPW3C5Y5PFKUH7AVHQ'
+export const BUILD_BOND_EVENT_ID = BigInt(import.meta.env.VITE_BUILD_BOND_EVENT_ID || '1')
+// sha256("buildbond-public-demo-v1"), debe coincidir con el rules_hash fijado al crear el evento.
+export const BUILD_BOND_RULES_HASH =
+  (import.meta.env.VITE_BUILD_BOND_RULES_HASH as string | undefined) ||
+  '9816a8765addc874a8ea0763bcc2ca1a3226188a0ca214103c153b2301809288'
+// Monto fijo del evento de demo: 50 XLM, en stroops (1 XLM = 10^7 stroops).
+export const BUILD_BOND_AMOUNT_XLM = '50'
 
 export type StakeAsset = 'XLM' | 'USDC'
 
 export type Balances = { funded: boolean; XLM: string; USDC: string | null }
 
 export const shortAddress = (address: string) => `${address.slice(0, 4)}…${address.slice(-4)}`
+
+const hexToBytes = (hex: string): Uint8Array => {
+  const bytes = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < bytes.length; i += 1) bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16)
+  return bytes
+}
 
 export async function connectFreighter(): Promise<string> {
   const installed = await isConnected()
@@ -53,46 +70,64 @@ export async function fundWithFriendbot(address: string) {
   if (!response.ok) throw new Error('Friendbot no pudo fondear la cuenta. Intenta de nuevo en unos segundos.')
 }
 
-export async function stakeWithFreighter({
+export type JoinResult = { bondId: number; hash: string }
+
+/**
+ * Invoca `join` en el contrato BuildBond: deposita BUILD_BOND_AMOUNT_XLM en
+ * el evento de demo (open_admission = true) desde la propia wallet del
+ * hacker, firmado con Freighter. No requiere backend ni autorización previa
+ * del organizador — ver Contracts/build-bond/DEPLOYMENTS.md.
+ */
+export async function joinBuildBond({
   address,
-  asset,
-  amount,
   onSigned,
 }: {
   address: string
-  asset: StakeAsset
-  amount: string
   onSigned?: () => void
-}): Promise<string> {
-  const { Asset, BASE_FEE, Horizon, Memo, Networks, Operation, TransactionBuilder } = await import('@stellar/stellar-sdk')
-  const server = new Horizon.Server(HORIZON_URL)
-  const account = await server.loadAccount(address)
+}): Promise<JoinResult> {
+  const { Address, Contract, Networks, TransactionBuilder, nativeToScVal, scValToNative, rpc } = await import(
+    '@stellar/stellar-sdk'
+  )
+  const server = new rpc.Server(SOROBAN_RPC_URL)
+  const contract = new Contract(BUILD_BOND_CONTRACT_ID)
+  const account = await server.getAccount(address)
 
-  const operation = ESCROW_ADDRESS
-    ? Operation.payment({
-        destination: ESCROW_ADDRESS,
-        asset: asset === 'XLM' ? Asset.native() : new Asset('USDC', USDC_TESTNET_ISSUER),
-        amount,
-      })
-    : Operation.manageData({ name: 'buildbond_stake', value: `${amount} ${asset}` })
+  const rulesHash = hexToBytes(BUILD_BOND_RULES_HASH)
+  const operation = contract.call(
+    'join',
+    nativeToScVal(BUILD_BOND_EVENT_ID, { type: 'u64' }),
+    new Address(address).toScVal(),
+    nativeToScVal(rulesHash, { type: 'bytes' }),
+    nativeToScVal([], { type: 'u64' }),
+  )
 
-  const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: Networks.TESTNET })
+  const tx = new TransactionBuilder(account, { fee: '1000000', networkPassphrase: Networks.TESTNET })
     .addOperation(operation)
-    .addMemo(Memo.text('BUILD BOND stake'))
     .setTimeout(180)
     .build()
 
-  const signed = await signTransaction(tx.toXDR(), { networkPassphrase: Networks.TESTNET, address })
+  const prepared = await server.prepareTransaction(tx)
+
+  const signed = await signTransaction(prepared.toXDR(), { networkPassphrase: Networks.TESTNET, address })
   if (signed.error || !signed.signedTxXdr) {
     throw new Error(signed.error?.message || 'Rechazaste la firma en Freighter.')
   }
   onSigned?.()
 
-  try {
-    const result = await server.submitTransaction(TransactionBuilder.fromXDR(signed.signedTxXdr, Networks.TESTNET))
-    return result.hash
-  } catch (error) {
-    const codes = (error as { response?: { data?: { extras?: { result_codes?: unknown } } } }).response?.data?.extras?.result_codes
-    throw new Error(codes ? `La red rechazó la transacción: ${JSON.stringify(codes)}` : 'No pudimos enviar la transacción a Stellar.')
+  const sendResponse = await server.sendTransaction(TransactionBuilder.fromXDR(signed.signedTxXdr, Networks.TESTNET))
+  if (sendResponse.status === 'ERROR') {
+    throw new Error('La red rechazó la transacción de stake.')
   }
+
+  const result = await server.pollTransaction(sendResponse.hash, { attempts: 20 })
+  if (result.status !== 'SUCCESS') {
+    throw new Error(
+      result.status === 'FAILED'
+        ? 'La transacción de stake falló al ejecutarse on-chain. Revisa tu saldo y vuelve a intentar.'
+        : 'No pudimos confirmar la transacción a tiempo. Revísala en el explorador con el hash.',
+    )
+  }
+
+  const parsed = result.returnValue ? (scValToNative(result.returnValue) as { bond_id: number }) : null
+  return { bondId: parsed?.bond_id ?? 0, hash: sendResponse.hash }
 }
