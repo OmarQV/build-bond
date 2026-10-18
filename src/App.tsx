@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import './App.css'
 import { HackerApplication } from './HackerApplication'
+import { Landing } from './Landing'
 
 type IconName =
   | 'home'
@@ -148,10 +149,19 @@ function App() {
   const [activeTool, setActiveTool] = useState<IconName>('document')
   const [profileOpen, setProfileOpen] = useState(false)
   const [selectedHackathon, setSelectedHackathon] = useState<string | null>(null)
+  const [showLanding, setShowLanding] = useState(true)
 
   const navItems = ['Instawards', 'Recompensas', 'Comunidad', 'Educación']
   const primaryTools: IconName[] = ['home', 'folder', 'person', 'trophy', 'document', 'timer']
   const learningTools: IconName[] = ['cap', 'board', 'check']
+
+  const toggleLanding = (next: boolean) => {
+    setShowLanding(next)
+    setProfileOpen(false)
+    window.scrollTo({ top: 0 })
+  }
+
+  if (showLanding) return <Landing onEnter={() => toggleLanding(false)} />
 
   return (
     <div className="site-shell" id="top">
@@ -173,6 +183,7 @@ function App() {
             </button>
             {profileOpen && (
               <div className="profile-menu">
+                <button type="button" onClick={() => toggleLanding(true)}>Ver presentación</button>
                 <button type="button">Perfil</button>
                 <button type="button">Cerrar sesión</button>
               </div>
