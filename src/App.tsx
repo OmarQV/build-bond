@@ -24,6 +24,18 @@ type Hackathon = {
   entries: number
 }
 
+type Role = {
+  name: 'Hacker' | 'Volunteer' | 'Mentor'
+  tone: 'yellow' | 'purple' | 'cyan'
+  description: string
+}
+
+const roles: Role[] = [
+  { name: 'Hacker', tone: 'yellow', description: 'Hack and submit a project with up to 5 team members to be eligible for our amazing prizes.' },
+  { name: 'Volunteer', tone: 'purple', description: 'Join us at our Hackathon and Pragma events! Assist with logistics, registration, judging ops, and more to help create an unforgettable experience for all attendees.' },
+  { name: 'Mentor', tone: 'cyan', description: 'Tech mentors play a pivotal role by supporting and engaging with hackers that need help.' },
+]
+
 const hackathons: Hackathon[] = [
   { name: 'BB101 - DEMO/PITCH FINAL(MX)', location: '—', mode: 'online', prize: '$0.00', stage: 'SUBMISSION OPEN', closes: 'Oct 20, 2026', openNow: true, entries: 0 },
   { name: 'BB101 - DEMO/PITCH FINAL(CO)', location: '—', mode: 'online', prize: '$0.00', stage: 'SUBMISSION OPEN', closes: 'Oct 20, 2026', openNow: true, entries: 6 },
@@ -57,6 +69,52 @@ function LineIcon({ name }: { name: IconName }) {
   }
 
   return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>
+}
+
+function RoleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <g fill="none" stroke="currentColor" strokeWidth="1.35">
+        <ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(45 12 12)" />
+        <ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(-45 12 12)" />
+        <path d="M12 6.8 15.2 12 12 17.2 8.8 12z" />
+      </g>
+    </svg>
+  )
+}
+
+function HackathonWelcome({ name, onBack }: { name: string; onBack: () => void }) {
+  const [selectedRole, setSelectedRole] = useState<Role['name'] | null>(null)
+
+  return (
+    <>
+      <div className="page-title">
+        <span className="title-glyph" aria-hidden="true"><i /></span>
+        <h1>{name}</h1>
+      </div>
+      <div className="instruction-bar">PLEASE CHOOSE YOUR PREFERRED ROLE FOR THIS EVENT.</div>
+      <section className="welcome-region" aria-labelledby="welcome-title">
+        <h2 id="welcome-title">Welcome!</h2>
+        <p className="welcome-lead">Please choose your preferred role for this event.</p>
+        <div className="role-list">
+          {roles.map((role) => (
+            <button
+              type="button"
+              key={role.name}
+              className={selectedRole === role.name ? 'role-card is-selected' : 'role-card'}
+              aria-pressed={selectedRole === role.name}
+              onClick={() => setSelectedRole(role.name)}
+            >
+              <span className={`role-icon role-icon-${role.tone}`}><RoleIcon /></span>
+              <strong>{role.name}</strong>
+              <span className="role-description">{role.description}</span>
+            </button>
+          ))}
+        </div>
+        <button type="button" className="welcome-back" onClick={onBack}>← BACK TO HACKATHONS</button>
+      </section>
+    </>
+  )
 }
 
 function Brand() {
@@ -122,12 +180,15 @@ function App() {
               </button>
             ))}
           </div>
-          <button type="button" className="tool-button back-button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Go back">
+          <button type="button" className="tool-button back-button" onClick={() => (selectedHackathon ? setSelectedHackathon(null) : window.scrollTo({ top: 0, behavior: 'smooth' }))} aria-label="Go back">
             <LineIcon name="arrow" />
           </button>
         </aside>
 
         <main className="content-panel">
+          {selectedHackathon ? (
+            <HackathonWelcome name={selectedHackathon} onBack={() => setSelectedHackathon(null)} />
+          ) : (<>
           <div className="page-title">
             <span className="title-glyph" aria-hidden="true"><i /></span>
             <h1>Hackathons</h1>
@@ -146,10 +207,13 @@ function App() {
               {hackathons.map((hackathon) => (
                 <button
                   type="button"
-                  className={selectedHackathon === hackathon.name ? 'table-row data-row is-selected' : 'table-row data-row'}
+                  className="table-row data-row"
                   role="row"
                   key={hackathon.name}
-                  onClick={() => setSelectedHackathon(hackathon.name)}
+                  onClick={() => {
+                    setSelectedHackathon(hackathon.name)
+                    window.scrollTo({ top: 0 })
+                  }}
                 >
                   <span className="hackathon-name" role="cell"><strong>{hackathon.name}</strong><small>{hackathon.location}</small></span>
                   <span role="cell">{hackathon.mode}</span>
@@ -161,6 +225,7 @@ function App() {
               ))}
             </div>
           </div>
+          </>)}
         </main>
       </div>
 
