@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import './App.css'
+import { HackerApplication } from './HackerApplication'
 
 type IconName =
   | 'home'
@@ -16,22 +17,34 @@ type IconName =
 type Hackathon = {
   name: string
   location: string
-  mode: 'online' | 'in person'
+  mode: 'online' | 'presencial'
   prize: string
-  stage: 'SUBMISSION OPEN' | 'JUDGING' | 'JUDGING CLOSED'
+  stage: 'ENVÍOS ABIERTOS' | 'EN EVALUACIÓN' | 'EVALUACIÓN CERRADA'
   closes: string
   openNow?: boolean
   entries: number
 }
 
+type Role = {
+  name: 'Hacker' | 'Voluntario' | 'Mentor'
+  tone: 'yellow' | 'purple' | 'cyan'
+  description: string
+}
+
+const roles: Role[] = [
+  { name: 'Hacker', tone: 'yellow', description: 'Hackea y envía un proyecto con hasta 5 integrantes para competir por nuestros increíbles premios.' },
+  { name: 'Voluntario', tone: 'purple', description: '¡Únete a nuestros hackathons y eventos Pragma! Ayuda con logística, registro, operaciones de evaluación y más para crear una experiencia inolvidable para todos los asistentes.' },
+  { name: 'Mentor', tone: 'cyan', description: 'Los mentores técnicos cumplen un rol clave apoyando y acompañando a los hackers que necesitan ayuda.' },
+]
+
 const hackathons: Hackathon[] = [
-  { name: 'BB101 - DEMO/PITCH FINAL(MX)', location: '—', mode: 'online', prize: '$0.00', stage: 'SUBMISSION OPEN', closes: 'Oct 20, 2026', openNow: true, entries: 0 },
-  { name: 'BB101 - DEMO/PITCH FINAL(CO)', location: '—', mode: 'online', prize: '$0.00', stage: 'SUBMISSION OPEN', closes: 'Oct 20, 2026', openNow: true, entries: 6 },
-  { name: 'Bootcamp Tesh', location: 'MEXICO', mode: 'in person', prize: '$30.00', stage: 'SUBMISSION OPEN', closes: 'Oct 18, 2026', openNow: true, entries: 7 },
-  { name: 'Ideathon Bolivia 2026', location: '—', mode: 'online', prize: '$600.00', stage: 'SUBMISSION OPEN', closes: 'Oct 18, 2026', openNow: true, entries: 10 },
-  { name: 'NEA TECH 2026', location: 'Corrientes, Argentina', mode: 'in person', prize: '$1,000.00', stage: 'JUDGING', closes: 'Oct 17, 2026', entries: 6 },
-  { name: 'Argentina Builder Challenge', location: '—', mode: 'online', prize: '$0.00', stage: 'JUDGING CLOSED', closes: 'Sep 28, 2026', entries: 20 },
-  { name: 'GOYA HACK', location: 'CDMX, UNAM Facultad de Ingeniería', mode: 'in person', prize: '$330.00', stage: 'JUDGING CLOSED', closes: 'Sep 28, 2026', entries: 26 },
+  { name: 'BB101 - DEMO/PITCH FINAL(MX)', location: '—', mode: 'online', prize: '$0.00', stage: 'ENVÍOS ABIERTOS', closes: '20 oct 2026', openNow: true, entries: 0 },
+  { name: 'BB101 - DEMO/PITCH FINAL(CO)', location: '—', mode: 'online', prize: '$0.00', stage: 'ENVÍOS ABIERTOS', closes: '20 oct 2026', openNow: true, entries: 6 },
+  { name: 'Bootcamp Tesh', location: 'MEXICO', mode: 'presencial', prize: '$30.00', stage: 'ENVÍOS ABIERTOS', closes: '18 oct 2026', openNow: true, entries: 7 },
+  { name: 'Ideathon Bolivia 2026', location: '—', mode: 'online', prize: '$600.00', stage: 'ENVÍOS ABIERTOS', closes: '18 oct 2026', openNow: true, entries: 10 },
+  { name: 'NEA TECH 2026', location: 'Corrientes, Argentina', mode: 'presencial', prize: '$1,000.00', stage: 'EN EVALUACIÓN', closes: '17 oct 2026', entries: 6 },
+  { name: 'Argentina Builder Challenge', location: '—', mode: 'online', prize: '$0.00', stage: 'EVALUACIÓN CERRADA', closes: '28 sep 2026', entries: 20 },
+  { name: 'GOYA HACK', location: 'CDMX, UNAM Facultad de Ingeniería', mode: 'presencial', prize: '$330.00', stage: 'EVALUACIÓN CERRADA', closes: '28 sep 2026', entries: 26 },
 ]
 
 function LineIcon({ name }: { name: IconName }) {
@@ -59,9 +72,71 @@ function LineIcon({ name }: { name: IconName }) {
   return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>
 }
 
+function RoleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <g fill="none" stroke="currentColor" strokeWidth="1.35">
+        <ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(45 12 12)" />
+        <ellipse cx="12" cy="12" rx="9.5" ry="4" transform="rotate(-45 12 12)" />
+        <path d="M12 6.8 15.2 12 12 17.2 8.8 12z" />
+      </g>
+    </svg>
+  )
+}
+
+function HackathonWelcome({ name, onBack }: { name: string; onBack: () => void }) {
+  const [selectedRole, setSelectedRole] = useState<Role['name'] | null>(null)
+
+  if (selectedRole === 'Hacker') {
+    return (
+      <>
+        <div className="page-title">
+          <span className="title-glyph" aria-hidden="true"><i /></span>
+          <h1>{name}</h1>
+        </div>
+        <div className="instruction-bar">SOLICITUD DE HACKER — REVISA TUS DATOS Y ENVÍA.</div>
+        <HackerApplication eventName={name} onBack={() => setSelectedRole(null)} />
+      </>
+    )
+  }
+
+  return (
+    <>
+      <div className="page-title">
+        <span className="title-glyph" aria-hidden="true"><i /></span>
+        <h1>{name}</h1>
+      </div>
+      <div className="instruction-bar">ELIGE TU ROL PREFERIDO PARA ESTE EVENTO.</div>
+      <section className="welcome-region" aria-labelledby="welcome-title">
+        <h2 id="welcome-title">¡Bienvenido!</h2>
+        <p className="welcome-lead">Elige tu rol preferido para este evento.</p>
+        <div className="role-list">
+          {roles.map((role) => (
+            <button
+              type="button"
+              key={role.name}
+              className={selectedRole === role.name ? 'role-card is-selected' : 'role-card'}
+              aria-pressed={selectedRole === role.name}
+              onClick={() => {
+                setSelectedRole(role.name)
+                if (role.name === 'Hacker') window.scrollTo({ top: 0 })
+              }}
+            >
+              <span className={`role-icon role-icon-${role.tone}`}><RoleIcon /></span>
+              <strong>{role.name}</strong>
+              <span className="role-description">{role.description}</span>
+            </button>
+          ))}
+        </div>
+        <button type="button" className="welcome-back" onClick={onBack}>← VOLVER A HACKATHONS</button>
+      </section>
+    </>
+  )
+}
+
 function Brand() {
   return (
-    <a className="brand" href="#top" aria-label="Stellar Apex home">
+    <a className="brand" href="#top" aria-label="Inicio de Stellar Apex">
       <span>Stellar Apex</span>
       <span className="brand-mark" aria-hidden="true" />
     </a>
@@ -69,12 +144,12 @@ function Brand() {
 }
 
 function App() {
-  const [activeNav, setActiveNav] = useState('Bounties')
+  const [activeNav, setActiveNav] = useState('Recompensas')
   const [activeTool, setActiveTool] = useState<IconName>('document')
   const [profileOpen, setProfileOpen] = useState(false)
   const [selectedHackathon, setSelectedHackathon] = useState<string | null>(null)
 
-  const navItems = ['Instawards', 'Bounties', 'Community', 'Education']
+  const navItems = ['Instawards', 'Recompensas', 'Comunidad', 'Educación']
   const primaryTools: IconName[] = ['home', 'folder', 'person', 'trophy', 'document', 'timer']
   const learningTools: IconName[] = ['cap', 'board', 'check']
 
@@ -83,7 +158,7 @@ function App() {
       <header className="topbar">
         <div className="topbar-inner">
           <Brand />
-          <nav className="main-nav" aria-label="Main navigation">
+          <nav className="main-nav" aria-label="Navegación principal">
             {navItems.map((item) => (
               <button className={activeNav === item ? 'is-active' : ''} key={item} onClick={() => setActiveNav(item)} type="button">
                 {item}
@@ -98,8 +173,8 @@ function App() {
             </button>
             {profileOpen && (
               <div className="profile-menu">
-                <button type="button">Profile</button>
-                <button type="button">Sign out</button>
+                <button type="button">Perfil</button>
+                <button type="button">Cerrar sesión</button>
               </div>
             )}
           </div>
@@ -107,71 +182,78 @@ function App() {
       </header>
 
       <div className="workspace">
-        <aside className="sidebar" aria-label="Workspace tools">
+        <aside className="sidebar" aria-label="Herramientas">
           <div className="tool-group">
             {primaryTools.map((tool) => (
-              <button type="button" key={tool} className={activeTool === tool ? 'tool-button is-active' : 'tool-button'} onClick={() => setActiveTool(tool)} aria-label={`Open ${tool}`}>
+              <button type="button" key={tool} className={activeTool === tool ? 'tool-button is-active' : 'tool-button'} onClick={() => setActiveTool(tool)} aria-label={`Abrir ${tool}`}>
                 <LineIcon name={tool} />
               </button>
             ))}
           </div>
           <div className="tool-group tool-group-secondary">
             {learningTools.map((tool) => (
-              <button type="button" key={tool} className={activeTool === tool ? 'tool-button is-active' : 'tool-button'} onClick={() => setActiveTool(tool)} aria-label={`Open ${tool}`}>
+              <button type="button" key={tool} className={activeTool === tool ? 'tool-button is-active' : 'tool-button'} onClick={() => setActiveTool(tool)} aria-label={`Abrir ${tool}`}>
                 <LineIcon name={tool} />
               </button>
             ))}
           </div>
-          <button type="button" className="tool-button back-button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Go back">
+          <button type="button" className="tool-button back-button" onClick={() => (selectedHackathon ? setSelectedHackathon(null) : window.scrollTo({ top: 0, behavior: 'smooth' }))} aria-label="Volver">
             <LineIcon name="arrow" />
           </button>
         </aside>
 
         <main className="content-panel">
+          {selectedHackathon ? (
+            <HackathonWelcome name={selectedHackathon} onBack={() => setSelectedHackathon(null)} />
+          ) : (<>
           <div className="page-title">
             <span className="title-glyph" aria-hidden="true"><i /></span>
             <h1>Hackathons</h1>
           </div>
-          <div className="instruction-bar">ENTER A PROJECT YOU ALREADY OWN INTO AN OPEN TRACK.</div>
+          <div className="instruction-bar">INSCRIBE UN PROYECTO TUYO EN UN TRACK ABIERTO.</div>
           <div className="table-region">
             <div className="hackathon-table" role="table" aria-label="Hackathons">
               <div className="table-row table-head" role="row">
                 <span role="columnheader">HACKATHON</span>
-                <span role="columnheader">MODE</span>
-                <span role="columnheader">PRIZE POOL</span>
-                <span role="columnheader">STAGE</span>
-                <span role="columnheader">SUBMISSIONS CLOSE</span>
-                <span role="columnheader">ENTRIES</span>
+                <span role="columnheader">MODALIDAD</span>
+                <span role="columnheader">PREMIOS</span>
+                <span role="columnheader">ETAPA</span>
+                <span role="columnheader">CIERRE DE ENVÍOS</span>
+                <span role="columnheader">PROYECTOS</span>
               </div>
               {hackathons.map((hackathon) => (
                 <button
                   type="button"
-                  className={selectedHackathon === hackathon.name ? 'table-row data-row is-selected' : 'table-row data-row'}
+                  className="table-row data-row"
                   role="row"
                   key={hackathon.name}
-                  onClick={() => setSelectedHackathon(hackathon.name)}
+                  onClick={() => {
+                    setSelectedHackathon(hackathon.name)
+                    window.scrollTo({ top: 0 })
+                  }}
                 >
                   <span className="hackathon-name" role="cell"><strong>{hackathon.name}</strong><small>{hackathon.location}</small></span>
                   <span role="cell">{hackathon.mode}</span>
                   <span role="cell">{hackathon.prize}</span>
                   <span role="cell"><em className="stage-pill">{hackathon.stage}</em></span>
-                  <span className="closing-date" role="cell"><b>{hackathon.closes}</b>{hackathon.openNow && <small>open now</small>}</span>
+                  <span className="closing-date" role="cell"><b>{hackathon.closes}</b>{hackathon.openNow && <small>abierto ahora</small>}</span>
                   <span role="cell">{hackathon.entries}</span>
                 </button>
               ))}
             </div>
           </div>
+          </>)}
         </main>
       </div>
 
-      <button className="drift-tab" type="button" aria-label="Open Drift support">DRFT</button>
+      <button className="drift-tab" type="button" aria-label="Abrir soporte Drift">DRFT</button>
       <footer className="footer">
         <div className="footer-inner">
           <Brand />
-          <nav aria-label="Footer navigation">
-            <a href="#documentation">Documentation</a>
-            <a href="#community">Community Guidelines</a>
-            <a href="#privacy">Privacy Policy</a>
+          <nav aria-label="Navegación del pie de página">
+            <a href="#documentation">Documentación</a>
+            <a href="#community">Normas de la comunidad</a>
+            <a href="#privacy">Política de privacidad</a>
           </nav>
         </div>
       </footer>
