@@ -32,8 +32,6 @@ const demoProfile = {
   areas: ['Pagos', 'Smart Contracts'],
   describe: describeOptions[2],
   team: teamOptions[0],
-  resume: 'Jhamil_CV_2026.pdf',
-  under18: false,
   firstEvent: true,
   conduct: true,
   privacy: true,
@@ -190,29 +188,7 @@ export function HackerApplication({ eventName, onBack }: { eventName: string; on
         </Field>
       </div>
 
-      <Field label="Currículum / CV">
-        <label className="upload-box">
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx,image/*"
-            onChange={(e) => { const file = e.target.files?.[0]; if (file) set('resume', file.name) }}
-          />
-          {form.resume ? (
-            <span className="upload-file">
-              <span className="file-tag">PDF</span>
-              <span><b>{form.resume}</b><small>Subido · haz clic para reemplazar</small></span>
-            </span>
-          ) : (
-            <span className="upload-empty"><b>Haz clic para subir</b> o arrastra y suelta<small>Tipos aceptados: .pdf, .doc, .docx, imágenes</small></span>
-          )}
-        </label>
-      </Field>
-
       <div className="check-list">
-        <label className="check-row">
-          <input type="checkbox" checked={form.under18} onChange={(e) => set('under18', e.target.checked)} />
-          <span><b>Sí, tendré menos de 18 años en la fecha del evento</b><small>No te preocupes, solo necesitamos una autorización firmada por tu padre/madre/tutor.</small></span>
-        </label>
         <label className="check-row">
           <input type="checkbox" checked={form.firstEvent} onChange={(e) => set('firstEvent', e.target.checked)} />
           <span><b>Sí, este es mi primer hackathon de Stellar Apex</b></span>
