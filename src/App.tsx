@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import './App.css'
+import { HackerApplication } from './HackerApplication'
 
 type IconName =
   | 'home'
@@ -86,6 +87,19 @@ function RoleIcon() {
 function HackathonWelcome({ name, onBack }: { name: string; onBack: () => void }) {
   const [selectedRole, setSelectedRole] = useState<Role['name'] | null>(null)
 
+  if (selectedRole === 'Hacker') {
+    return (
+      <>
+        <div className="page-title">
+          <span className="title-glyph" aria-hidden="true"><i /></span>
+          <h1>{name}</h1>
+        </div>
+        <div className="instruction-bar">HACKER APPLICATION — REVIEW YOUR DETAILS AND SUBMIT.</div>
+        <HackerApplication eventName={name} onBack={() => setSelectedRole(null)} />
+      </>
+    )
+  }
+
   return (
     <>
       <div className="page-title">
@@ -103,7 +117,10 @@ function HackathonWelcome({ name, onBack }: { name: string; onBack: () => void }
               key={role.name}
               className={selectedRole === role.name ? 'role-card is-selected' : 'role-card'}
               aria-pressed={selectedRole === role.name}
-              onClick={() => setSelectedRole(role.name)}
+              onClick={() => {
+                setSelectedRole(role.name)
+                if (role.name === 'Hacker') window.scrollTo({ top: 0 })
+              }}
             >
               <span className={`role-icon role-icon-${role.tone}`}><RoleIcon /></span>
               <strong>{role.name}</strong>
