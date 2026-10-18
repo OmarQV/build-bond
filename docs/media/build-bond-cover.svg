@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="460" viewBox="0 0 1440 460" role="img" aria-labelledby="title desc">
+<title id="title">Build Bond — Deposita. Participa. Construye. Recupera.</title>
+<desc id="desc">Portada de Build Bond en negro, amarillo y cian. Depósitos de compromiso para hackathons en Stellar Testnet.</desc>
+<defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#252a29" stroke-width="1"/></pattern></defs>
+<rect width="1440" height="460" fill="#0c0d0d"/>
+<rect x="930" y="0" width="510" height="460" fill="url(#grid)"/>
+<path d="M0 459H1440M930 0V460" stroke="#383939"/>
+<path d="M52 54h22M52 54v22M1388 406h-22M1388 406v-22" fill="none" stroke="#ffdc00" stroke-width="3"/>
+<g font-family="Arial, Helvetica, sans-serif">
+<text x="88" y="76" fill="#00b8c4" font-family="Consolas, monospace" font-size="16" letter-spacing="3">IDEATÓN STELLAR BOLIVIA 2026</text>
+<text x="82" y="223" fill="#ffdc00" font-size="116" font-weight="800" letter-spacing="-6">BUILD BOND</text>
+<text x="88" y="282" fill="#f3f3f0" font-size="27">Deposita. Participa. Construye. Recupera.</text>
+<text x="88" y="322" fill="#a3a5a7" font-size="21">Depósitos de compromiso para hackathons en Stellar.</text>
+<rect x="88" y="369" width="114" height="32" fill="#003b3e" stroke="#075055"/>
+<text x="145" y="390" fill="#b7eeed" font-size="13" text-anchor="middle" letter-spacing="1">TESTNET</text>
+<text x="225" y="390" fill="#a3a5a7" font-family="Consolas, monospace" font-size="14">SOROBAN / FREIGHTER / XLM</text>
+</g>
+<g fill="none">
+<circle cx="1180" cy="221" r="137" stroke="#003b3e" stroke-width="30"/>
+<path d="M1180 84a137 137 0 0 1 137 137" stroke="#ffdc00" stroke-width="30"/>
+<path d="M1298 204l19 17 16-19" stroke="#ffdc00" stroke-width="6"/>
+<path d="M1180 358a137 137 0 0 1-137-137" stroke="#00b8c4" stroke-width="5"/>
+<path d="M1029 237l14-16 17 15" stroke="#00b8c4" stroke-width="5"/>
+<rect x="1135" y="176" width="90" height="90" stroke="#ffdc00" stroke-width="6"/>
+<rect x="1150" y="191" width="60" height="60" stroke="#f3f3f0"/>
+</g>
+<rect x="1175" y="216" width="10" height="10" fill="#ffdc00"/>
+<text x="1180" y="411" fill="#a3a5a7" text-anchor="middle" font-family="Consolas, monospace" font-size="14" letter-spacing="2">COMPROMISO → ENTREGA → RECLAMO</text>
+</svg>
