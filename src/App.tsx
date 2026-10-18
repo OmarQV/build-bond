@@ -85,6 +85,15 @@ function RoleIcon() {
   )
 }
 
+function PageBack({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button type="button" className="page-back" aria-label={label} onClick={() => { onClick(); window.scrollTo({ top: 0 }) }}>
+      <LineIcon name="arrow" />
+      <span>{label}</span>
+    </button>
+  )
+}
+
 function HackathonWelcome({ name, onBack }: { name: string; onBack: () => void }) {
   const [selectedRole, setSelectedRole] = useState<Role['name'] | null>(null)
 
@@ -94,6 +103,7 @@ function HackathonWelcome({ name, onBack }: { name: string; onBack: () => void }
         <div className="page-title">
           <span className="title-glyph" aria-hidden="true"><i /></span>
           <h1>{name}</h1>
+          <PageBack label="Volver a roles" onClick={() => setSelectedRole(null)} />
         </div>
         <div className="instruction-bar">SOLICITUD DE HACKER — REVISA TUS DATOS Y ENVÍA.</div>
         <HackerApplication eventName={name} onBack={() => setSelectedRole(null)} />
@@ -106,6 +116,7 @@ function HackathonWelcome({ name, onBack }: { name: string; onBack: () => void }
       <div className="page-title">
         <span className="title-glyph" aria-hidden="true"><i /></span>
         <h1>{name}</h1>
+        <PageBack label="Volver a hackathons" onClick={onBack} />
       </div>
       <div className="instruction-bar">ELIGE TU ROL PREFERIDO PARA ESTE EVENTO.</div>
       <section className="welcome-region" aria-labelledby="welcome-title">
@@ -208,7 +219,7 @@ function App() {
               </button>
             ))}
           </div>
-          <button type="button" className="tool-button back-button" onClick={() => (selectedHackathon ? setSelectedHackathon(null) : window.scrollTo({ top: 0, behavior: 'smooth' }))} aria-label="Volver">
+          <button type="button" className="tool-button back-button" onClick={() => (selectedHackathon ? setSelectedHackathon(null) : toggleLanding(true))} aria-label={selectedHackathon ? 'Volver a hackathons' : 'Volver a la presentación'}>
             <LineIcon name="arrow" />
           </button>
         </aside>
@@ -220,6 +231,7 @@ function App() {
           <div className="page-title">
             <span className="title-glyph" aria-hidden="true"><i /></span>
             <h1>Hackathons</h1>
+            <PageBack label="Volver a la presentación" onClick={() => toggleLanding(true)} />
           </div>
           <div className="instruction-bar">INSCRIBE UN PROYECTO TUYO EN UN TRACK ABIERTO.</div>
           <div className="table-region">

@@ -690,3 +690,40 @@ button { font: inherit; }
     transition-duration: 0.01ms !important;
   }
 }
+
+.page-back {
+  margin-left: auto;
+  height: 34px;
+  padding: 0 14px 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: transparent;
+  cursor: pointer;
+  font: 700 11px/1 'Courier New', Consolas, monospace;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
+}
+
+.page-back svg {
+  width: 16px;
+  height: 16px;
+  color: var(--yellow);
+}
+
+.page-back:hover {
+  border-color: var(--yellow);
+  background: #181a19;
+}
+
+.page-back:active { transform: scale(.97); }
+
+@media (max-width: 680px) {
+  .page-title { gap: 12px; }
+  .page-back span { display: none; }
+  .page-back { width: 38px; padding: 0; justify-content: center; }
+}
