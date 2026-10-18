@@ -1,0 +1,235 @@
+.stake-steps {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  list-style: none;
+  border: 1px solid var(--line);
+}
+
+.stake-steps li {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font: 700 11px/1.2 'Courier New', Consolas, monospace;
+}
+
+.stake-steps li + li { border-left: 1px solid var(--line); }
+
+.step-num {
+  flex: 0 0 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #4a4b4b;
+  font: 700 11px/1 Arial, sans-serif;
+}
+
+.stake-steps li.is-current {
+  color: var(--text);
+  background: #181a19;
+  box-shadow: inset 0 -2px 0 var(--yellow);
+}
+
+.stake-steps li.is-current .step-num {
+  border-color: var(--yellow);
+  color: #0c0d0d;
+  background: var(--yellow);
+}
+
+.stake-steps li.is-done { color: #7fe7ee; }
+
+.stake-steps li.is-done .step-num {
+  border-color: var(--cyan);
+  color: #0c0d0d;
+  background: var(--cyan);
+}
+
+.stake-info,
+.done-summary.done-summary {
+  width: 100%;
+  max-width: none;
+}
+
+.stake-info {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: 1px solid #705e00;
+  font-family: 'Courier New', Consolas, monospace;
+}
+
+.stake-info div {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.stake-info div:nth-child(odd) { border-right: 1px solid var(--line-soft); }
+.stake-info div:nth-last-child(-n + 2) { border-bottom: 0; }
+
+.stake-info dt {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.stake-info dd {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.stake-amount {
+  color: var(--yellow);
+  font: 700 22px/1 Arial, sans-serif !important;
+}
+
+.mono-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wallet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.wallet-card,
+.wallet-connected {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: #0e0f0f;
+  text-align: left;
+}
+
+.wallet-card {
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.wallet-card:hover:not(:disabled) { border-color: #705e00; background: #181a19; }
+.wallet-card:disabled { cursor: wait; opacity: .5; }
+
+.wallet-card.is-loading {
+  opacity: 1;
+  border-color: var(--yellow);
+  background: #181a19;
+}
+
+.wallet-logo {
+  flex: 0 0 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--purple);
+  font: 700 16px/1 Arial, sans-serif;
+}
+
+.wallet-connected {
+  border-color: #075055;
+  background: #021c1e;
+}
+
+.wallet-connected .track-text { flex: 1; min-width: 0; }
+.wallet-connected .wallet-logo { background: var(--teal-hover); }
+
+.link-button {
+  padding: 0;
+  border: 0;
+  color: var(--cyan);
+  background: transparent;
+  cursor: pointer;
+  font: 700 11px/1 'Courier New', Consolas, monospace;
+}
+
+.link-button:disabled { opacity: .4; cursor: not-allowed; }
+
+.chip:disabled { cursor: not-allowed; opacity: .6; }
+
+.stake-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #705e00;
+  border-top-color: var(--yellow);
+  border-radius: 50%;
+  animation: stake-spin 700ms linear infinite;
+}
+
+@keyframes stake-spin { to { transform: rotate(360deg); } }
+
+.stake-ticket {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  border: 1px solid var(--yellow);
+  background: #181a19;
+}
+
+.ticket-main,
+.ticket-stub {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ticket-main strong {
+  color: var(--yellow);
+  font: 700 22px/1.1 Arial, sans-serif;
+}
+
+.ticket-main span:last-child {
+  color: #a3a5a7;
+  font: 400 12px/1.3 'Courier New', Consolas, monospace;
+}
+
+.ticket-stub {
+  justify-content: center;
+  border-left: 2px dashed #705e00;
+  text-align: center;
+}
+
+.ticket-stub strong { font: 700 14px/1 'Courier New', Consolas, monospace; }
+
+.ticket-kicker {
+  color: var(--muted);
+  font: 700 10px/1 'Courier New', Consolas, monospace;
+  letter-spacing: .6px;
+}
+
+.status-ok { color: #7fe7ee; }
+
+.stake-region .btn-ghost:disabled { opacity: .35; cursor: not-allowed; }
+
+@media (max-width: 680px) {
+  .stake-steps li { padding: 10px 8px; font-size: 9.5px; }
+  .wallet-grid,
+  .stake-info { grid-template-columns: 1fr; }
+  .stake-info div:nth-child(odd) { border-right: 0; }
+  .stake-info div:nth-last-child(2) { border-bottom: 1px solid var(--line-soft); }
+  .stake-ticket { grid-template-columns: 1fr; }
+  .ticket-stub { border-left: 0; border-top: 2px dashed #705e00; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2s; }
+}
