@@ -70,6 +70,83 @@ export async function fundWithFriendbot(address: string) {
   if (!response.ok) throw new Error('Friendbot no pudo fondear la cuenta. Intenta de nuevo en unos segundos.')
 }
 
+// Códigos de Contracts/build-bond/contracts/build-bond/src/errors.rs
+const CONTRACT_ERRORS: Record<number, string> = {
+  200: 'El evento de demo no existe en este contrato.',
+  201: 'Este evento fue cancelado.',
+  202: 'Las inscripciones están pausadas por el organizador.',
+  203: 'El evento no está recibiendo depósitos en este momento.',
+  204: 'El evento ya alcanzó su cupo máximo.',
+  300: 'Tu wallet no está admitida en este evento.',
+  301: 'Tu admisión a este evento venció.',
+  303: 'Esta wallet ya tiene un Build Bond en este evento.',
+  304: 'Las reglas del evento cambiaron. Recarga la página e inténtalo de nuevo.',
+  800: 'El monto no es válido para este evento.',
+}
+
+export class ContractError extends Error {
+  code: number
+
+  constructor(code: number) {
+    super(CONTRACT_ERRORS[code] ?? `El contrato rechazó la operación (código ${code}).`)
+    this.code = code
+  }
+}
+
+/** Convierte un HostError de Soroban ("Error(Contract, #303) ...") en un mensaje legible. */
+export function toFriendlyError(err: unknown): Error {
+  const message = err instanceof Error ? err.message : String(err)
+  const match = message.match(/Error\(Contract, #(\d+)\)/)
+  if (match) return new ContractError(Number(match[1]))
+  return err instanceof Error ? err : new Error(message)
+}
+
+const BOND_STATES: Record<string, string> = {
+  Locked: 'BLOQUEADO · ACTIVO',
+  Releaseable: 'DISPONIBLE PARA RECLAMAR',
+  Frozen: 'CONGELADO · RECUPERABLE',
+  Linked: 'VINCULADO A RECUPERACIÓN',
+  Claimed: 'RECLAMADO',
+}
+
+export type ExistingBond = { bondId: number; amountXlm: string; state: string }
+
+/** Busca, solo con lecturas simuladas, si la wallet ya tiene un bond en el evento de demo. */
+export async function findExistingBond(address: string): Promise<ExistingBond | null> {
+  const { Address, BASE_FEE, Contract, Networks, TransactionBuilder, nativeToScVal, scValToNative, rpc } = await import(
+    '@stellar/stellar-sdk'
+  )
+  const server = new rpc.Server(SOROBAN_RPC_URL)
+  const contract = new Contract(BUILD_BOND_CONTRACT_ID)
+  const account = await server.getAccount(address)
+
+  const read = async (method: string, ...args: Parameters<typeof contract.call>[1][]) => {
+    const tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: Networks.TESTNET })
+      .addOperation(contract.call(method, ...args))
+      .setTimeout(30)
+      .build()
+    const sim = await server.simulateTransaction(tx)
+    if (rpc.Api.isSimulationError(sim) || !sim.result) return null
+    return scValToNative(sim.result.retval)
+  }
+
+  const ids = ((await read('list_owner_bonds', new Address(address).toScVal())) ?? []) as bigint[]
+  for (const id of ids) {
+    const bond = (await read('get_bond', nativeToScVal(id, { type: 'u64' }))) as
+      | { id: bigint; event_id: bigint; amount: bigint; state: string | string[] }
+      | null
+    if (bond && BigInt(bond.event_id) === BUILD_BOND_EVENT_ID) {
+      const state = Array.isArray(bond.state) ? bond.state[0] : bond.state
+      return {
+        bondId: Number(bond.id),
+        amountXlm: (Number(bond.amount) / 1e7).toString(),
+        state: BOND_STATES[state] ?? state.toUpperCase(),
+      }
+    }
+  }
+  return null
+}
+
 export type JoinResult = { bondId: number; hash: string }
 
 /**
@@ -106,7 +183,9 @@ export async function joinBuildBond({
     .setTimeout(180)
     .build()
 
-  const prepared = await server.prepareTransaction(tx)
+  const prepared = await server.prepareTransaction(tx).catch((err: unknown) => {
+    throw toFriendlyError(err)
+  })
 
   const signed = await signTransaction(prepared.toXDR(), { networkPassphrase: Networks.TESTNET, address })
   if (signed.error || !signed.signedTxXdr) {
